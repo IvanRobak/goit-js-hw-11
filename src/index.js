@@ -9,6 +9,7 @@ const lightbox = new SimpleLightbox('.gallery a');
 const formEl = document.querySelector('#search-form');
 const galleryEl = document.querySelector('.gallery');
 const loadMoreEl = document.querySelector('.load-more');
+export const inputEl = document.querySelector('input');
 
 const pagination = {
   page: 1,
@@ -25,15 +26,28 @@ async function onFormSubmit(event) {
   event.preventDefault();
   clearGallery();
 
+  const value = event.currentTarget.searchQuery.value.trim();
+  if (!value) return;
   pagination.page = 1;
-  const images = await fetchImages(pagination.page);
-  renderImages(images);
+
+  try {
+    const images = await fetchImages(pagination.page, value);
+    renderImages(images);
+    lightbox.refresh();
+  } catch (error) {
+    Notify.failure('Oops! Something went wrong.');
+  }
 }
 
 async function onLoadMoreClick() {
   pagination.page += 1;
-  const images = await fetchImages(pagination.page);
-  renderImages(images);
+  try {
+    const images = await fetchImages(pagination.page);
+    renderImages(images);
+    lightbox.refresh();
+  } catch (error) {
+    Notify.failure('Oops! Something went wrong.');
+  }
 }
 
 function renderImages(images) {
